@@ -9,3 +9,4 @@ data/*.db
 data/*.sqlite3
 data/attachments/*
 !data/attachments/.gitkeep
+.env
