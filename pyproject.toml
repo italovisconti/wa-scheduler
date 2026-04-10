@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wa-scheduler"
+version = "0.1.0"
+description = "Self-hosted personal WhatsApp scheduler built on top of wacli"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.135.3",
+  "SQLAlchemy==2.0.49",
+  "Jinja2==3.1.6",
+  "uvicorn[standard]>=0.38.0,<0.39.0",
+  "python-multipart>=0.0.20,<0.0.21",
+]
+
+[project.scripts]
+wa-scheduler = "wa_scheduler.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["wa_scheduler"]

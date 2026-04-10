@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <div class="card-header">
+    <h2>Contacts</h2>
+    <p class="muted">Importa usando `wa-scheduler enqueue-sync` + `wa-scheduler worker` o desde el dashboard.</p>
+  </div>
+  <form method="get" action="/contacts" class="inline-grid contacts-filter">
+    <label>
+      <span>Search</span>
+      <input type="search" name="q" value="{{ q or '' }}" placeholder="Name, alias, phone, tag, JID" />
+    </label>
+    <div class="filter-actions">
+      <button type="submit">Filter</button>
+      <a class="button secondary" href="/contacts">Clear</a>
+    </div>
+  </form>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Alias</th>
+        <th>Tags</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contact in contacts %}
+      <tr>
+        <td>{{ contact.display_name or contact.wa_jid }}</td>
+        <td>{{ contact.phone }}</td>
+        <td>
+          <form method="post" action="/contacts/{{ contact.id }}" class="inline-form">
+            <input type="text" name="alias" value="{{ contact.alias }}" placeholder="Alias" />
+        </td>
+        <td>
+            <input type="text" name="tags" value="{{ contact.tags }}" placeholder="vip, familia" />
+        </td>
+        <td>
+            <div class="actions-row compact-actions">
+              <button type="submit" class="small-button">Guardar</button>
+              <a class="button secondary small-button" href="/send-now?target_ref=contact:{{ contact.id }}">Send now</a>
+            </div>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">No hay contactos importados.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

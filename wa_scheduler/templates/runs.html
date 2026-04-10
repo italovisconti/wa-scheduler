@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h2>Runs</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Schedule</th>
+        <th>Target</th>
+        <th>Status</th>
+        <th>Run at</th>
+        <th>Error</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for run in runs %}
+      <tr>
+        <td>{{ run.schedule.name }}</td>
+        <td>{{ target_label(run.schedule) }}</td>
+        <td><span class="pill pill-{{ run.status }}">{{ run.status }}</span></td>
+        <td>{{ to_local(run.run_at, run.schedule.timezone or 'UTC').strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ run.error_message or '-' }}</td>
+        <td>
+          {% if run.job %}
+          <form method="post" action="/runs/{{ run.id }}/retry">
+            <button type="submit">Retry</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">No hay runs.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Direct Sends</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Target</th>
+        <th>Body</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Error</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in direct_jobs %}
+      <tr>
+        <td>{{ job.payload.target_ref if job.payload else '-' }}</td>
+        <td>{{ job.payload.body if job.payload else '-' }}</td>
+        <td><span class="pill pill-{{ job.status }}">{{ job.status }}</span></td>
+        <td>{{ job.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ job.last_error or '-' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">No hay envíos directos aun.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

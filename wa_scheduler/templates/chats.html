@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <div class="card-header">
+    <h2>Chats</h2>
+    <p class="muted">Incluye grupos y chats directos importados desde `wacli`.</p>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Kind</th>
+        <th>JID</th>
+        <th>Last Message</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for chat in chats %}
+      <tr>
+        <td>{{ chat.name }}</td>
+        <td>{{ chat.kind }}</td>
+        <td class="mono">{{ chat.wa_jid }}</td>
+        <td>
+          {% if chat.last_message_at %}
+            {{ to_local(chat.last_message_at, 'UTC').strftime('%Y-%m-%d %H:%M') }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>
+          <a class="button secondary small-button" href="/send-now?target_ref=chat:{{ chat.id }}">Send now</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">No hay chats importados.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

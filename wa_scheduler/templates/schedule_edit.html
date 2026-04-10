@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card narrow-card">
+  <div class="card-header">
+    <h2>Edit Schedule</h2>
+    <a class="button secondary" href="/schedules">Volver</a>
+  </div>
+
+  <form method="post" action="/schedules/{{ schedule.id }}" enctype="multipart/form-data" class="stack-form">
+    <label>
+      <span>Name</span>
+      <input type="text" name="name" value="{{ schedule.name }}" required />
+    </label>
+
+    <label>
+      <span>Target</span>
+      <select name="target_ref" required>
+        {% for contact in contacts %}
+        <option value="contact:{{ contact.id }}" {% if schedule.target_type == 'contact' and schedule.contact_id == contact.id %}selected{% endif %}>Contact: {{ contact.alias or contact.display_name or contact.phone }}</option>
+        {% endfor %}
+        {% for chat in chats %}
+        <option value="chat:{{ chat.id }}" {% if schedule.target_type == 'chat' and schedule.chat_id == chat.id %}selected{% endif %}>Chat: {{ chat.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      <span>Template</span>
+      <select name="template_id">
+        <option value="0">Sin plantilla</option>
+        {% for template in templates_list %}
+        <option value="{{ template.id }}" {% if schedule.template_id == template.id %}selected{% endif %}>{{ template.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      <span>Message override / caption</span>
+      <textarea name="message_body_override" rows="5">{{ schedule.message_body_override }}</textarea>
+    </label>
+
+    <label>
+      <span>Attachment path (optional)</span>
+      <input type="text" name="attachment_path" value="{{ schedule.attachment_path }}" placeholder="/absolute/path/to/file.pdf" />
+    </label>
+
+    <label>
+      <span>Or upload replacement attachment</span>
+      <input type="file" name="attachment_upload" />
+    </label>
+
+    {% if schedule.attachment_path %}
+    <div class="attachment-summary">
+      <p><strong>Actual:</strong> {{ schedule.attachment_filename or schedule.attachment_path }}</p>
+      <label class="checkbox-inline"><input type="checkbox" name="clear_attachment" value="true" /> Quitar adjunto</label>
+    </div>
+    {% endif %}
+
+    <div class="inline-grid">
+      <label>
+        <span>Attachment filename</span>
+        <input type="text" name="attachment_filename" value="{{ schedule.attachment_filename }}" placeholder="report.pdf" />
+      </label>
+      <label>
+        <span>Attachment MIME</span>
+        <input type="text" name="attachment_mime" value="{{ schedule.attachment_mime }}" placeholder="application/pdf" />
+      </label>
+    </div>
+
+    <div class="inline-grid">
+      <label>
+        <span>Timezone</span>
+        <select name="timezone">
+          {% for tz in timezones %}
+          <option value="{{ tz }}" {% if schedule.timezone == tz %}selected{% endif %}>{{ tz }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Schedule type</span>
+        <select name="schedule_type">
+          <option value="one_time" {% if schedule.schedule_type == 'one_time' %}selected{% endif %}>One time</option>
+          <option value="daily" {% if schedule.schedule_type == 'daily' %}selected{% endif %}>Daily</option>
+          <option value="weekly" {% if schedule.schedule_type == 'weekly' %}selected{% endif %}>Weekly</option>
+          <option value="monthly" {% if schedule.schedule_type == 'monthly' %}selected{% endif %}>Monthly</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="inline-grid">
+      <label>
+        <span>One time at</span>
+        <input type="datetime-local" name="one_time_at" value="{% if schedule.one_time_at %}{{ to_local(schedule.one_time_at, schedule.timezone or 'UTC').strftime('%Y-%m-%dT%H:%M') }}{% endif %}" />
+      </label>
+      <label>
+        <span>Time of day</span>
+        <input type="time" name="time_of_day" value="{{ schedule.time_of_day }}" />
+      </label>
+    </div>
+
+    {% set selected_weekdays = schedule.weekdays.split(',') if schedule.weekdays else [] %}
+    <fieldset>
+      <legend>Weekdays</legend>
+      <div class="checkbox-row">
+        <label><input type="checkbox" name="weekdays" value="0" {% if '0' in selected_weekdays %}checked{% endif %} /> Mon</label>
+        <label><input type="checkbox" name="weekdays" value="1" {% if '1' in selected_weekdays %}checked{% endif %} /> Tue</label>
+        <label><input type="checkbox" name="weekdays" value="2" {% if '2' in selected_weekdays %}checked{% endif %} /> Wed</label>
+        <label><input type="checkbox" name="weekdays" value="3" {% if '3' in selected_weekdays %}checked{% endif %} /> Thu</label>
+        <label><input type="checkbox" name="weekdays" value="4" {% if '4' in selected_weekdays %}checked{% endif %} /> Fri</label>
+        <label><input type="checkbox" name="weekdays" value="5" {% if '5' in selected_weekdays %}checked{% endif %} /> Sat</label>
+        <label><input type="checkbox" name="weekdays" value="6" {% if '6' in selected_weekdays %}checked{% endif %} /> Sun</label>
+      </div>
+    </fieldset>
+
+    <label>
+      <span>Day of month</span>
+      <input type="number" min="1" max="31" name="day_of_month" value="{{ schedule.day_of_month or 1 }}" />
+    </label>
+
+    <div class="actions-row">
+      <button type="submit">Guardar cambios</button>
+    </div>
+  </form>
+  <div class="actions-row top-gap">
+    <form method="post" action="/schedules/{{ schedule.id }}/toggle">
+      <button type="submit" class="secondary">{% if schedule.is_paused %}Resume{% else %}Pause{% endif %}</button>
+    </form>
+    <form method="post" action="/schedules/{{ schedule.id }}/delete">
+      <button type="submit" class="danger">Eliminar</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

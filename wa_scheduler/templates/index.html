@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="grid stats-grid">
+  <article class="card stat-card">
+    <p class="label">Contacts</p>
+    <p class="value">{{ stats.contacts }}</p>
+  </article>
+  <article class="card stat-card">
+    <p class="label">Chats</p>
+    <p class="value">{{ stats.chats }}</p>
+  </article>
+  <article class="card stat-card">
+    <p class="label">Schedules</p>
+    <p class="value">{{ stats.schedules }}</p>
+  </article>
+  <article class="card stat-card">
+    <p class="label">Pending Jobs</p>
+    <p class="value">{{ stats.pending_jobs }}</p>
+  </article>
+</section>
+
+<section class="grid two-up">
+  <article class="card">
+    <div class="card-header">
+      <h2>System Health</h2>
+      <form method="post" action="/maintenance/enqueue-sync">
+        <button type="submit">Enqueue Sync Jobs</button>
+      </form>
+    </div>
+    {% if health_error %}
+    <p class="error">{{ health_error }}</p>
+    {% else %}
+    <dl class="kv-list">
+      <div><dt>Store</dt><dd>{{ health.store_dir }}</dd></div>
+      <div><dt>Authenticated</dt><dd>{{ health.authenticated }}</dd></div>
+      <div><dt>Locked</dt><dd>{{ health.lock_held }}</dd></div>
+      <div><dt>FTS5</dt><dd>{{ health.fts_enabled }}</dd></div>
+    </dl>
+    {% endif %}
+  </article>
+
+  <article class="card">
+    <div class="card-header">
+      <h2>Scheduler</h2>
+      <form method="post" action="/maintenance/materialize">
+        <button type="submit">Materialize Runs</button>
+      </form>
+    </div>
+    <p>
+      El worker corre aparte y es el unico proceso que debe enviar mensajes por `wacli`.
+      Desde aqui solo se encolan tareas y se preparan ejecuciones.
+    </p>
+    <p class="muted">Ahora mismo: {{ now }}</p>
+  </article>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h2>Send Now</h2>
+    <a class="text-link" href="/send-now">Open full send page</a>
+  </div>
+  <p class="muted">Use the full page if you want to attach a file or pick a preselected contact/chat.</p>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h2>Recent Runs</h2>
+    <a class="text-link" href="/runs">Ver todo</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Schedule</th>
+        <th>Target</th>
+        <th>Status</th>
+        <th>Run At</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for run in recent_runs %}
+      <tr>
+        <td>{{ run.schedule.name }}</td>
+        <td>{{ target_label(run.schedule) }}</td>
+        <td><span class="pill pill-{{ run.status }}">{{ run.status }}</span></td>
+        <td>{{ to_local(run.run_at, run.schedule.timezone or 'UTC').strftime('%Y-%m-%d %H:%M') }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4">No hay ejecuciones todavia.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

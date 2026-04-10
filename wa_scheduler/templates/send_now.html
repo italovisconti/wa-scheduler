@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card narrow-card">
+  <div class="card-header">
+    <h2>Send Now</h2>
+    <a class="button secondary" href="/">Back</a>
+  </div>
+
+  <form method="post" action="/send-now" enctype="multipart/form-data" class="stack-form">
+    <label>
+      <span>Target</span>
+      <select name="target_ref" required>
+        <option value="">Choose a contact or chat</option>
+        {% for contact in contacts %}
+        <option value="contact:{{ contact.id }}" {% if selected_target_ref == 'contact:' ~ contact.id %}selected{% endif %}>Contact: {{ contact.alias or contact.display_name or contact.phone }}</option>
+        {% endfor %}
+        {% for chat in chats %}
+        <option value="chat:{{ chat.id }}" {% if selected_target_ref == 'chat:' ~ chat.id %}selected{% endif %}>Chat: {{ chat.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      <span>Message</span>
+      <textarea name="message" rows="6" required placeholder="Write a test message..."></textarea>
+    </label>
+
+    <label>
+      <span>Attachment (optional)</span>
+      <input type="file" name="attachment_upload" />
+    </label>
+
+    <button type="submit">Send now</button>
+  </form>
+</section>
+{% endblock %}

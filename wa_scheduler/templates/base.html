@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>wa-scheduler</title>
+    <link rel="icon" href="{{ url_for('static', path='/logo.svg') }}" type="image/svg+xml" />
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">
+        <img class="brand-mark" src="{{ url_for('static', path='/logo.svg') }}" alt="" aria-hidden="true" />
+        <div>
+          <p class="eyebrow">Self-hosted personal WhatsApp scheduler</p>
+          <h1>wa-scheduler</h1>
+        </div>
+      </a>
+      <nav>
+        <a href="/">Dashboard</a>
+        <a href="/contacts">Contacts</a>
+        <a href="/chats">Chats</a>
+        <a href="/templates">Templates</a>
+        <a href="/schedules">Schedules</a>
+        <a href="/send-now">Send Now</a>
+        <a href="/runs">Runs</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      {% if notice %}
+      <div class="notice">{{ notice }}</div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+  </html>

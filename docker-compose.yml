@@ -1,0 +1,47 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wa-scheduler:local
+    environment:
+      WA_SCHEDULER_DATABASE_URL: sqlite:////app/data/wa-scheduler.db
+      WACLI_BIN: /usr/local/bin/wacli
+      WACLI_STORE_DIR: /wacli-store
+      WA_SCHEDULER_DEFAULT_TIMEZONE: ${WA_SCHEDULER_DEFAULT_TIMEZONE:-UTC}
+      WA_SCHEDULER_WORKER_POLL_SECONDS: ${WA_SCHEDULER_WORKER_POLL_SECONDS:-30}
+      WA_SCHEDULER_MATERIALIZE_HORIZON_MINUTES: ${WA_SCHEDULER_MATERIALIZE_HORIZON_MINUTES:-1440}
+      WA_SCHEDULER_MAX_SEND_ATTEMPTS: ${WA_SCHEDULER_MAX_SEND_ATTEMPTS:-3}
+    ports:
+      - "8000:8000"
+    volumes:
+      - wa_scheduler_data:/app/data
+      - wacli_store:/wacli-store
+    command: >-
+      sh -c "uv run wa-scheduler init-db &&
+      uv run uvicorn wa_scheduler.main:app --host 0.0.0.0 --port 8000"
+    restart: unless-stopped
+
+  worker:
+    image: wa-scheduler:local
+    depends_on:
+      - web
+    environment:
+      WA_SCHEDULER_DATABASE_URL: sqlite:////app/data/wa-scheduler.db
+      WACLI_BIN: /usr/local/bin/wacli
+      WACLI_STORE_DIR: /wacli-store
+      WA_SCHEDULER_DEFAULT_TIMEZONE: ${WA_SCHEDULER_DEFAULT_TIMEZONE:-UTC}
+      WA_SCHEDULER_WORKER_POLL_SECONDS: ${WA_SCHEDULER_WORKER_POLL_SECONDS:-30}
+      WA_SCHEDULER_MATERIALIZE_HORIZON_MINUTES: ${WA_SCHEDULER_MATERIALIZE_HORIZON_MINUTES:-1440}
+      WA_SCHEDULER_MAX_SEND_ATTEMPTS: ${WA_SCHEDULER_MAX_SEND_ATTEMPTS:-3}
+    volumes:
+      - wa_scheduler_data:/app/data
+      - wacli_store:/wacli-store
+    command: >-
+      sh -c "uv run wa-scheduler init-db &&
+      uv run wa-scheduler worker"
+    restart: unless-stopped
+
+volumes:
+  wa_scheduler_data:
+  wacli_store:

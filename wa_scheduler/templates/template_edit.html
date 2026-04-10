@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card narrow-card">
+  <div class="card-header">
+    <h2>Edit Template</h2>
+    <a class="button secondary" href="/templates">Volver</a>
+  </div>
+  <form method="post" action="/templates/{{ template.id }}" class="stack-form">
+    <label>
+      <span>Name</span>
+      <input type="text" name="name" value="{{ template.name }}" required />
+    </label>
+    <label>
+      <span>Body</span>
+      <textarea name="body" rows="12" required>{{ template.body }}</textarea>
+    </label>
+    <div class="actions-row">
+      <button type="submit">Guardar cambios</button>
+    </div>
+  </form>
+  <div class="actions-row top-gap">
+    <form method="post" action="/templates/{{ template.id }}/delete">
+      <button type="submit" class="danger">Eliminar</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

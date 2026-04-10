@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="grid two-up">
+  <article class="card">
+    <h2>New Schedule</h2>
+    <form method="post" action="/schedules" enctype="multipart/form-data" class="stack-form">
+      <label>
+        <span>Name</span>
+        <input type="text" name="name" required />
+      </label>
+
+      <label>
+        <span>Target</span>
+        <select name="target_ref" required>
+          {% for contact in contacts %}
+          <option value="contact:{{ contact.id }}">Contact: {{ contact.alias or contact.display_name or contact.phone }}</option>
+          {% endfor %}
+          {% for chat in chats %}
+          <option value="chat:{{ chat.id }}">Chat: {{ chat.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        <span>Template</span>
+        <select name="template_id">
+          <option value="0">Sin plantilla</option>
+          {% for template in templates_list %}
+          <option value="{{ template.id }}">{{ template.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        <span>Message override / caption</span>
+        <textarea name="message_body_override" rows="5"></textarea>
+      </label>
+
+      <label>
+        <span>Attachment path (optional)</span>
+        <input type="text" name="attachment_path" placeholder="/absolute/path/to/file.pdf" />
+      </label>
+
+      <label>
+        <span>Or upload attachment</span>
+        <input type="file" name="attachment_upload" />
+      </label>
+
+      <div class="inline-grid">
+        <label>
+          <span>Attachment filename</span>
+          <input type="text" name="attachment_filename" placeholder="report.pdf" />
+        </label>
+        <label>
+          <span>Attachment MIME</span>
+          <input type="text" name="attachment_mime" placeholder="application/pdf" />
+        </label>
+      </div>
+
+      <div class="inline-grid">
+        <label>
+          <span>Timezone</span>
+          <select name="timezone">
+            {% for tz in timezones %}
+            <option value="{{ tz }}">{{ tz }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Schedule type</span>
+          <select name="schedule_type">
+            <option value="one_time">One time</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="inline-grid">
+        <label>
+          <span>One time at</span>
+          <input type="datetime-local" name="one_time_at" />
+        </label>
+        <label>
+          <span>Time of day</span>
+          <input type="time" name="time_of_day" />
+        </label>
+      </div>
+
+      <fieldset>
+        <legend>Weekdays</legend>
+        <div class="checkbox-row">
+          <label><input type="checkbox" name="weekdays" value="0" /> Mon</label>
+          <label><input type="checkbox" name="weekdays" value="1" /> Tue</label>
+          <label><input type="checkbox" name="weekdays" value="2" /> Wed</label>
+          <label><input type="checkbox" name="weekdays" value="3" /> Thu</label>
+          <label><input type="checkbox" name="weekdays" value="4" /> Fri</label>
+          <label><input type="checkbox" name="weekdays" value="5" /> Sat</label>
+          <label><input type="checkbox" name="weekdays" value="6" /> Sun</label>
+        </div>
+      </fieldset>
+
+      <label>
+        <span>Day of month</span>
+        <input type="number" min="1" max="31" name="day_of_month" value="1" />
+      </label>
+
+      <button type="submit">Guardar schedule</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <h2>Schedules</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Target</th>
+          <th>Type</th>
+          <th>Next run</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for schedule in schedules %}
+        <tr>
+          <td>{{ schedule.name }}</td>
+          <td>{{ target_label(schedule) }}</td>
+          <td>{{ schedule.schedule_type }}</td>
+          <td>
+            {% if schedule.next_run_at %}
+              {{ to_local(schedule.next_run_at, schedule.timezone or 'UTC').strftime('%Y-%m-%d %H:%M') }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            {% if schedule.is_paused %}
+              paused
+            {% elif schedule.is_active %}
+              active
+            {% else %}
+              inactive
+            {% endif %}
+          </td>
+          <td>
+            <div class="actions-row compact-actions">
+              <a class="button secondary small-button" href="/schedules/{{ schedule.id }}/edit">Editar</a>
+              <form method="post" action="/schedules/{{ schedule.id }}/toggle">
+                <button type="submit" class="small-button">{% if schedule.is_paused %}Resume{% else %}Pause{% endif %}</button>
+              </form>
+              <form method="post" action="/schedules/{{ schedule.id }}/delete">
+                <button type="submit" class="danger small-button">Eliminar</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% else %}
+      <tr><td colspan="6">No hay schedules.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="grid two-up">
+  <article class="card">
+    <h2>New Template</h2>
+    <form method="post" action="/templates" class="stack-form">
+      <label>
+        <span>Name</span>
+        <input type="text" name="name" required />
+      </label>
+      <label>
+        <span>Body</span>
+        <textarea name="body" rows="8" required>Hola {{ '{{ contact_name }}' }}, este es un recordatorio.</textarea>
+      </label>
+      <button type="submit">Guardar plantilla</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <h2>Templates</h2>
+    <ul class="list">
+      {% for template in templates_list %}
+      <li>
+        <strong>{{ template.name }}</strong>
+        <div class="actions-row">
+          <a class="button secondary" href="/templates/{{ template.id }}/edit">Editar</a>
+          <form method="post" action="/templates/{{ template.id }}/delete">
+            <button type="submit" class="danger">Eliminar</button>
+          </form>
+        </div>
+        <pre>{{ template.body }}</pre>
+      </li>
+      {% else %}
+      <li>No hay plantillas.</li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+{% endblock %}
