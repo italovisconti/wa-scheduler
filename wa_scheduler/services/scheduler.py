@@ -28,6 +28,27 @@ def compute_next_run(
             return schedule.one_time_at
         return None
 
+    if schedule.schedule_type == "interval":
+        interval_minutes = schedule.interval_minutes
+        if interval_minutes is None and schedule.interval_hours is not None:
+            interval_minutes = schedule.interval_hours * 60
+        start_at = schedule.one_time_at
+        if interval_minutes is None or interval_minutes < 5 or start_at is None:
+            return None
+
+        interval = timedelta(minutes=interval_minutes)
+        if reference_utc <= start_at:
+            candidate = start_at
+        else:
+            elapsed = reference_utc - start_at
+            intervals_elapsed = int(elapsed.total_seconds() // interval.total_seconds())
+            candidate = start_at + interval * (intervals_elapsed + 1)
+
+        until_at = schedule.repeat_until_at
+        if until_at is not None and candidate > until_at:
+            return None
+        return candidate
+
     at_time = parse_hhmm(schedule.time_of_day)
     if at_time is None:
         return None
@@ -125,6 +146,11 @@ def materialize_runs(session: Session, horizon_minutes: int | None = None) -> in
     for schedule in schedules:
         ensure_schedule_next_run(schedule)
         if schedule.next_run_at is None or schedule.next_run_at > horizon:
+            if schedule.next_run_at is None and schedule.schedule_type in {
+                "one_time",
+                "interval",
+            }:
+                schedule.is_active = False
             continue
 
         # This key is what keeps materialization idempotent across restarts.
@@ -164,6 +190,8 @@ def materialize_runs(session: Session, horizon_minutes: int | None = None) -> in
             schedule.next_run_at = compute_next_run(
                 schedule, reference_utc=run.run_at + timedelta(seconds=1)
             )
+            if schedule.schedule_type == "interval" and schedule.next_run_at is None:
+                schedule.is_active = False
 
         created += 1
 

@@ -3,7 +3,7 @@
 <section class="card">
   <div class="card-header">
     <h2>Chats</h2>
-    <p class="muted">Incluye grupos y chats directos importados desde `wacli`.</p>
+    <p class="muted">Includes groups and direct chats imported from `wacli`.</p>
   </div>
   <table>
     <thead>
@@ -22,18 +22,18 @@
         <td>{{ chat.kind }}</td>
         <td class="mono">{{ chat.wa_jid }}</td>
         <td>
-          {% if chat.last_message_at %}
-            {{ to_local(chat.last_message_at, 'UTC').strftime('%Y-%m-%d %H:%M') }}
-          {% else %}
-            -
-          {% endif %}
+            {% if chat.last_message_at %}
+              {{ to_local(chat.last_message_at, app_timezone).strftime('%Y-%m-%d %H:%M') }}
+            {% else %}
+              -
+            {% endif %}
         </td>
         <td>
           <a class="button secondary small-button" href="/send-now?target_ref=chat:{{ chat.id }}">Send now</a>
         </td>
       </tr>
       {% else %}
-      <tr><td colspan="5">No hay chats importados.</td></tr>
+      <tr><td colspan="5">No chats yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>

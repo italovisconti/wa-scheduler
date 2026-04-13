@@ -10,9 +10,9 @@
       </label>
       <label>
         <span>Body</span>
-        <textarea name="body" rows="8" required>Hola {{ '{{ contact_name }}' }}, este es un recordatorio.</textarea>
+        <textarea name="body" rows="8" required>Hi {{ '{{ contact_name }}' }}, this is a reminder.</textarea>
       </label>
-      <button type="submit">Guardar plantilla</button>
+      <button type="submit">Save template</button>
     </form>
   </article>
 
@@ -25,13 +25,13 @@
         <div class="actions-row">
           <a class="button secondary" href="/templates/{{ template.id }}/edit">Editar</a>
           <form method="post" action="/templates/{{ template.id }}/delete">
-            <button type="submit" class="danger">Eliminar</button>
+            <button type="submit" class="danger">Delete</button>
           </form>
         </div>
         <pre>{{ template.body }}</pre>
       </li>
       {% else %}
-      <li>No hay plantillas.</li>
+        <li>No templates yet.</li>
       {% endfor %}
     </ul>
   </article>

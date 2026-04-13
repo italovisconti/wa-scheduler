@@ -24,7 +24,7 @@
     <div class="card-header">
       <h2>System Health</h2>
       <form method="post" action="/maintenance/enqueue-sync">
-        <button type="submit">Enqueue Sync Jobs</button>
+        <button type="submit">Enqueue sync jobs</button>
       </form>
     </div>
     {% if health_error %}
@@ -43,14 +43,14 @@
     <div class="card-header">
       <h2>Scheduler</h2>
       <form method="post" action="/maintenance/materialize">
-        <button type="submit">Materialize Runs</button>
+        <button type="submit">Materialize runs</button>
       </form>
     </div>
     <p>
-      El worker corre aparte y es el unico proceso que debe enviar mensajes por `wacli`.
-      Desde aqui solo se encolan tareas y se preparan ejecuciones.
+      The worker runs separately and is the only process that should send messages through `wacli`.
+      From here we only enqueue tasks and prepare executions.
     </p>
-    <p class="muted">Ahora mismo: {{ now }}</p>
+    <p class="muted">Current time: {{ now }}</p>
   </article>
 </section>
 
@@ -65,7 +65,7 @@
 <section class="card">
   <div class="card-header">
     <h2>Recent Runs</h2>
-    <a class="text-link" href="/runs">Ver todo</a>
+    <a class="text-link" href="/runs">View all</a>
   </div>
   <table>
     <thead>
@@ -73,7 +73,7 @@
         <th>Schedule</th>
         <th>Target</th>
         <th>Status</th>
-        <th>Run At</th>
+        <th>Run at</th>
       </tr>
     </thead>
     <tbody>
@@ -82,10 +82,10 @@
         <td>{{ run.schedule.name }}</td>
         <td>{{ target_label(run.schedule) }}</td>
         <td><span class="pill pill-{{ run.status }}">{{ run.status }}</span></td>
-        <td>{{ to_local(run.run_at, run.schedule.timezone or 'UTC').strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ to_local(run.run_at, app_timezone).strftime('%Y-%m-%d %H:%M') }}</td>
       </tr>
       {% else %}
-      <tr><td colspan="4">No hay ejecuciones todavia.</td></tr>
+      <tr><td colspan="4">No runs yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>

@@ -1,0 +1,33 @@
+<div class="target-selector" data-target-selector>
+  <label class="target-selector-filter">
+    <span>Filter target</span>
+    <input
+      type="search"
+      autocomplete="off"
+      placeholder="Search contact, alias, phone, or chat"
+      data-target-filter
+    />
+  </label>
+
+  <label>
+    <span>Target</span>
+    <select name="target_ref" required data-target-select>
+      <option value="" {% if not selected_target_ref %}selected{% endif %}>
+        Choose a contact or chat
+      </option>
+      {% for option in target_options %}
+      <option
+        value="{{ option.value }}"
+        data-search="{{ option.search }}"
+        {% if option.value == selected_target_ref %}selected{% endif %}
+      >
+        {{ option.label }}
+      </option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <p class="muted target-selector-hint" data-target-empty hidden>
+    No results for that filter.
+  </p>
+</div>

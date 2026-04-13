@@ -3,7 +3,7 @@
 <section class="card narrow-card">
   <div class="card-header">
     <h2>Edit Schedule</h2>
-    <a class="button secondary" href="/schedules">Volver</a>
+    <a class="button secondary" href="/schedules">Back</a>
   </div>
 
   <form method="post" action="/schedules/{{ schedule.id }}" enctype="multipart/form-data" class="stack-form">
@@ -12,22 +12,12 @@
       <input type="text" name="name" value="{{ schedule.name }}" required />
     </label>
 
-    <label>
-      <span>Target</span>
-      <select name="target_ref" required>
-        {% for contact in contacts %}
-        <option value="contact:{{ contact.id }}" {% if schedule.target_type == 'contact' and schedule.contact_id == contact.id %}selected{% endif %}>Contact: {{ contact.alias or contact.display_name or contact.phone }}</option>
-        {% endfor %}
-        {% for chat in chats %}
-        <option value="chat:{{ chat.id }}" {% if schedule.target_type == 'chat' and schedule.chat_id == chat.id %}selected{% endif %}>Chat: {{ chat.name }}</option>
-        {% endfor %}
-      </select>
-    </label>
+    {% include "target_selector.html" %}
 
-    <label>
-      <span>Template</span>
-      <select name="template_id">
-        <option value="0">Sin plantilla</option>
+      <label>
+        <span>Template</span>
+        <select name="template_id">
+        <option value="0">No template</option>
         {% for template in templates_list %}
         <option value="{{ template.id }}" {% if schedule.template_id == template.id %}selected{% endif %}>{{ template.name }}</option>
         {% endfor %}
@@ -51,8 +41,8 @@
 
     {% if schedule.attachment_path %}
     <div class="attachment-summary">
-      <p><strong>Actual:</strong> {{ schedule.attachment_filename or schedule.attachment_path }}</p>
-      <label class="checkbox-inline"><input type="checkbox" name="clear_attachment" value="true" /> Quitar adjunto</label>
+      <p><strong>Current:</strong> {{ schedule.attachment_filename or schedule.attachment_path }}</p>
+      <label class="checkbox-inline"><input type="checkbox" name="clear_attachment" value="true" /> Remove attachment</label>
     </div>
     {% endif %}
 
@@ -72,7 +62,7 @@
         <span>Timezone</span>
         <select name="timezone">
           {% for tz in timezones %}
-          <option value="{{ tz }}" {% if schedule.timezone == tz %}selected{% endif %}>{{ tz }}</option>
+          <option value="{{ tz }}" {% if schedule.timezone == tz or (not schedule.timezone and tz == app_timezone) %}selected{% endif %}>{{ timezone_label(tz) }}</option>
           {% endfor %}
         </select>
       </label>
@@ -83,14 +73,40 @@
           <option value="daily" {% if schedule.schedule_type == 'daily' %}selected{% endif %}>Daily</option>
           <option value="weekly" {% if schedule.schedule_type == 'weekly' %}selected{% endif %}>Weekly</option>
           <option value="monthly" {% if schedule.schedule_type == 'monthly' %}selected{% endif %}>Monthly</option>
+          <option value="interval" {% if schedule.schedule_type == 'interval' %}selected{% endif %}>Interval</option>
         </select>
       </label>
+
+      {% if schedule.schedule_type == 'interval' %}
+      <div class="inline-grid">
+        <label>
+          <span>Start at</span>
+          <input type="datetime-local" name="one_time_at" value="{{ to_local(schedule.one_time_at, app_timezone).strftime('%Y-%m-%dT%H:%M') if schedule.one_time_at else '' }}" />
+        </label>
+        <label>
+          <span>Repeat every</span>
+          <div class="inline-grid recurring-interval" data-interval-group>
+            <input type="number" min="5" max="10080" name="interval_value" value="{{ schedule.interval_minutes or (schedule.interval_hours or 1) * 60 }}" data-interval-value />
+            <select name="interval_unit" data-interval-unit>
+              <option value="minutes" {% if schedule.interval_minutes is not none and schedule.interval_minutes < 60 %}selected{% elif schedule.interval_minutes is none and not schedule.interval_hours %}selected{% endif %}>Minutes</option>
+              <option value="hours" {% if schedule.interval_minutes and schedule.interval_minutes >= 60 and schedule.interval_minutes % 60 == 0 %}selected{% elif schedule.interval_hours %}selected{% endif %}>Hours</option>
+            </select>
+          </div>
+        </label>
+      </div>
+
+      <label>
+        <span>Repeat until</span>
+        <input type="datetime-local" name="repeat_until_at" value="{{ to_local(schedule.repeat_until_at, app_timezone).strftime('%Y-%m-%dT%H:%M') if schedule.repeat_until_at else '' }}" />
+      </label>
+      {% endif %}
     </div>
 
+    {% if schedule.schedule_type != 'interval' %}
     <div class="inline-grid">
       <label>
         <span>One time at</span>
-        <input type="datetime-local" name="one_time_at" value="{% if schedule.one_time_at %}{{ to_local(schedule.one_time_at, schedule.timezone or 'UTC').strftime('%Y-%m-%dT%H:%M') }}{% endif %}" />
+        <input type="datetime-local" name="one_time_at" value="{% if schedule.one_time_at %}{{ to_local(schedule.one_time_at, app_timezone).strftime('%Y-%m-%dT%H:%M') }}{% endif %}" />
       </label>
       <label>
         <span>Time of day</span>
@@ -116,9 +132,10 @@
       <span>Day of month</span>
       <input type="number" min="1" max="31" name="day_of_month" value="{{ schedule.day_of_month or 1 }}" />
     </label>
+    {% endif %}
 
     <div class="actions-row">
-      <button type="submit">Guardar cambios</button>
+      <button type="submit">Save changes</button>
     </div>
   </form>
   <div class="actions-row top-gap">
@@ -126,7 +143,7 @@
       <button type="submit" class="secondary">{% if schedule.is_paused %}Resume{% else %}Pause{% endif %}</button>
     </form>
     <form method="post" action="/schedules/{{ schedule.id }}/delete">
-      <button type="submit" class="danger">Eliminar</button>
+      <button type="submit" class="danger">Delete</button>
     </form>
   </div>
 </section>

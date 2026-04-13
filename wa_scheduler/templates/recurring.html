@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="grid two-up">
+  <article class="card narrow-card">
+    <h2>Recurring</h2>
+    <p class="muted">Send a template every N minutes or hours, up to 3 days from now.</p>
+
+    <form method="post" action="/recurring" class="stack-form">
+      <label>
+        <span>Name</span>
+        <input type="text" name="name" required placeholder="Promo every 2h" />
+      </label>
+
+      {% include "target_selector.html" %}
+
+      <label>
+        <span>Template</span>
+        <select name="template_id">
+          <option value="0">No template</option>
+          {% for template in templates_list %}
+          <option value="{{ template.id }}">{{ template.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        <span>Message override / caption</span>
+        <textarea name="message_body_override" rows="5" placeholder="Optional"></textarea>
+      </label>
+
+      <div class="inline-grid">
+        <label>
+          <span>Timezone</span>
+          <select name="timezone">
+            {% for tz in timezones %}
+            <option value="{{ tz }}" {% if tz == app_timezone %}selected{% endif %}>{{ timezone_label(tz) }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Repeat every</span>
+          <div class="inline-grid recurring-interval" data-interval-group>
+            <input type="number" name="interval_value" min="5" max="10080" value="5" required data-interval-value />
+            <select name="interval_unit" data-interval-unit>
+              <option value="minutes" selected>Minutes</option>
+              <option value="hours">Hours</option>
+            </select>
+          </div>
+        </label>
+      </div>
+
+      <div class="inline-grid">
+        <label>
+          <span>Start at</span>
+          <input type="datetime-local" name="one_time_at" value="{{ default_start_at }}" required />
+        </label>
+        <label>
+          <span>Repeat until</span>
+          <input type="datetime-local" name="repeat_until_at" value="{{ default_until_at }}" required />
+        </label>
+      </div>
+
+      <div class="attachment-summary">
+        <p class="target-selector-hint">The end date cannot be more than 3 days from now.</p>
+      </div>
+
+      <button type="submit">Create recurring schedule</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <h2>Active recurring schedules</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Target</th>
+          <th>Every</th>
+          <th>Next run</th>
+          <th>Until</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for schedule in interval_schedules %}
+        <tr>
+          <td>{{ schedule.name }}</td>
+          <td>{{ target_label(schedule) }}</td>
+          <td>{{ format_interval_minutes(schedule.interval_minutes, schedule.interval_hours) }}</td>
+          <td>
+            {% if schedule.next_run_at %}
+              {{ to_local(schedule.next_run_at, app_timezone).strftime('%Y-%m-%d %H:%M') }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            {% if schedule.repeat_until_at %}
+              {{ to_local(schedule.repeat_until_at, app_timezone).strftime('%Y-%m-%d %H:%M') }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            <div class="actions-row compact-actions">
+              <a class="button secondary small-button" href="/schedules/{{ schedule.id }}/edit">Edit</a>
+              <form method="post" action="/schedules/{{ schedule.id }}/toggle">
+                <button type="submit" class="small-button">{% if schedule.is_paused %}Resume{% else %}Pause{% endif %}</button>
+              </form>
+              <form method="post" action="/schedules/{{ schedule.id }}/delete">
+                <button type="submit" class="danger small-button">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6">No recurring schedules yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+</section>
+{% endblock %}

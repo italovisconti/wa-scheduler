@@ -9,22 +9,12 @@
         <input type="text" name="name" required />
       </label>
 
-      <label>
-        <span>Target</span>
-        <select name="target_ref" required>
-          {% for contact in contacts %}
-          <option value="contact:{{ contact.id }}">Contact: {{ contact.alias or contact.display_name or contact.phone }}</option>
-          {% endfor %}
-          {% for chat in chats %}
-          <option value="chat:{{ chat.id }}">Chat: {{ chat.name }}</option>
-          {% endfor %}
-        </select>
-      </label>
+      {% include "target_selector.html" %}
 
-      <label>
-        <span>Template</span>
-        <select name="template_id">
-          <option value="0">Sin plantilla</option>
+        <label>
+          <span>Template</span>
+          <select name="template_id">
+          <option value="0">No template</option>
           {% for template in templates_list %}
           <option value="{{ template.id }}">{{ template.name }}</option>
           {% endfor %}
@@ -62,7 +52,7 @@
           <span>Timezone</span>
           <select name="timezone">
             {% for tz in timezones %}
-            <option value="{{ tz }}">{{ tz }}</option>
+            <option value="{{ tz }}" {% if tz == app_timezone %}selected{% endif %}>{{ timezone_label(tz) }}</option>
             {% endfor %}
           </select>
         </label>
@@ -106,12 +96,12 @@
         <input type="number" min="1" max="31" name="day_of_month" value="1" />
       </label>
 
-      <button type="submit">Guardar schedule</button>
+      <button type="submit">Save schedule</button>
     </form>
   </article>
 
   <article class="card">
-    <h2>Schedules</h2>
+      <h2>Schedules</h2>
     <table>
       <thead>
         <tr>
@@ -131,7 +121,7 @@
           <td>{{ schedule.schedule_type }}</td>
           <td>
             {% if schedule.next_run_at %}
-              {{ to_local(schedule.next_run_at, schedule.timezone or 'UTC').strftime('%Y-%m-%d %H:%M') }}
+              {{ to_local(schedule.next_run_at, app_timezone).strftime('%Y-%m-%d %H:%M') }}
             {% else %}
               -
             {% endif %}
@@ -147,18 +137,18 @@
           </td>
           <td>
             <div class="actions-row compact-actions">
-              <a class="button secondary small-button" href="/schedules/{{ schedule.id }}/edit">Editar</a>
+              <a class="button secondary small-button" href="/schedules/{{ schedule.id }}/edit">Edit</a>
               <form method="post" action="/schedules/{{ schedule.id }}/toggle">
                 <button type="submit" class="small-button">{% if schedule.is_paused %}Resume{% else %}Pause{% endif %}</button>
               </form>
               <form method="post" action="/schedules/{{ schedule.id }}/delete">
-                <button type="submit" class="danger small-button">Eliminar</button>
+                <button type="submit" class="danger small-button">Delete</button>
               </form>
             </div>
           </td>
         </tr>
       {% else %}
-      <tr><td colspan="6">No hay schedules.</td></tr>
+      <tr><td colspan="6">No schedules yet.</td></tr>
       {% endfor %}
       </tbody>
     </table>

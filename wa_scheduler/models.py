@@ -12,6 +12,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -69,6 +70,16 @@ class MessageTemplate(Base):
     schedules: Mapped[list[Schedule]] = relationship(back_populates="template")
 
 
+class AppSetting(Base):
+    __tablename__ = "app_settings"
+
+    key: Mapped[str] = mapped_column(String(255), primary_key=True)
+    value: Mapped[str] = mapped_column(String(255), default="")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=utcnow, onupdate=utcnow
+    )
+
+
 class Schedule(Base):
     __tablename__ = "schedules"
 
@@ -88,6 +99,13 @@ class Schedule(Base):
     time_of_day: Mapped[str] = mapped_column(String(5), default="")
     weekdays: Mapped[str] = mapped_column(String(32), default="")
     day_of_month: Mapped[int | None] = mapped_column(Integer)
+    interval_minutes: Mapped[int | None] = mapped_column(
+        Integer, default=5, server_default=text("5")
+    )
+    interval_hours: Mapped[int | None] = mapped_column(
+        Integer, default=1, server_default=text("1")
+    )
+    repeat_until_at: Mapped[datetime | None] = mapped_column(DateTime)
     next_run_at: Mapped[datetime | None] = mapped_column(DateTime)
     last_run_at: Mapped[datetime | None] = mapped_column(DateTime)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)

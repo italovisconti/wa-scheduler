@@ -19,7 +19,7 @@
         <td>{{ run.schedule.name }}</td>
         <td>{{ target_label(run.schedule) }}</td>
         <td><span class="pill pill-{{ run.status }}">{{ run.status }}</span></td>
-        <td>{{ to_local(run.run_at, run.schedule.timezone or 'UTC').strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ to_local(run.run_at, app_timezone).strftime('%Y-%m-%d %H:%M') }}</td>
         <td>{{ run.error_message or '-' }}</td>
         <td>
           {% if run.job %}
@@ -30,7 +30,7 @@
         </td>
       </tr>
       {% else %}
-      <tr><td colspan="6">No hay runs.</td></tr>
+      <tr><td colspan="6">No runs yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -54,11 +54,11 @@
         <td>{{ job.payload.target_ref if job.payload else '-' }}</td>
         <td>{{ job.payload.body if job.payload else '-' }}</td>
         <td><span class="pill pill-{{ job.status }}">{{ job.status }}</span></td>
-        <td>{{ job.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ to_local(job.created_at, app_timezone).strftime('%Y-%m-%d %H:%M') }}</td>
         <td>{{ job.last_error or '-' }}</td>
       </tr>
       {% else %}
-      <tr><td colspan="5">No hay envíos directos aun.</td></tr>
+      <tr><td colspan="5">No direct sends yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>

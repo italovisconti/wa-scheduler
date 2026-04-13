@@ -3,7 +3,7 @@
 <section class="card">
   <div class="card-header">
     <h2>Contacts</h2>
-    <p class="muted">Importa usando `wa-scheduler enqueue-sync` + `wa-scheduler worker` o desde el dashboard.</p>
+    <p class="muted">Import using `wa-scheduler enqueue-sync` + `wa-scheduler worker`, or from the dashboard.</p>
   </div>
   <form method="get" action="/contacts" class="inline-grid contacts-filter">
     <label>
@@ -22,7 +22,7 @@
         <th>Phone</th>
         <th>Alias</th>
         <th>Tags</th>
-        <th>Action</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -39,14 +39,16 @@
         </td>
         <td>
             <div class="actions-row compact-actions">
-              <button type="submit" class="small-button">Guardar</button>
+               <button type="submit" class="small-button">Save</button>
+              <a class="button secondary small-button" href="/schedules?target_ref=contact:{{ contact.id }}">Schedule</a>
+              <a class="button secondary small-button" href="/recurring?target_ref=contact:{{ contact.id }}">Recurring</a>
               <a class="button secondary small-button" href="/send-now?target_ref=contact:{{ contact.id }}">Send now</a>
             </div>
           </form>
         </td>
       </tr>
       {% else %}
-      <tr><td colspan="5">No hay contactos importados.</td></tr>
+      <tr><td colspan="5">No contacts yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>

@@ -138,21 +138,22 @@ fieldset {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .grid {
   display: grid;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .stats-grid {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  margin-bottom: 1rem;
 }
 
 .two-up {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  margin-bottom: 1rem;
 }
 
 .card {
@@ -188,6 +189,24 @@ fieldset {
 .stack-form {
   display: grid;
   gap: 1rem;
+}
+
+.target-selector {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.target-selector-filter {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.target-selector-hint {
+  margin: 0;
+}
+
+.target-selector select:disabled {
+  opacity: 0.7;
 }
 
 .stack-form textarea {

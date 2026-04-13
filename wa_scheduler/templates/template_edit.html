@@ -3,7 +3,7 @@
 <section class="card narrow-card">
   <div class="card-header">
     <h2>Edit Template</h2>
-    <a class="button secondary" href="/templates">Volver</a>
+    <a class="button secondary" href="/templates">Back</a>
   </div>
   <form method="post" action="/templates/{{ template.id }}" class="stack-form">
     <label>
@@ -15,12 +15,12 @@
       <textarea name="body" rows="12" required>{{ template.body }}</textarea>
     </label>
     <div class="actions-row">
-      <button type="submit">Guardar cambios</button>
+      <button type="submit">Save changes</button>
     </div>
   </form>
   <div class="actions-row top-gap">
     <form method="post" action="/templates/{{ template.id }}/delete">
-      <button type="submit" class="danger">Eliminar</button>
+      <button type="submit" class="danger">Delete</button>
     </form>
   </div>
 </section>

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card narrow-card">
+  <div class="card-header">
+    <h2>Settings</h2>
+    <p class="muted">Set the timezone used by default across the app.</p>
+  </div>
+
+  <form method="post" action="/settings/timezone" class="stack-form">
+    <label>
+      <span>Default timezone</span>
+      <select name="timezone" required>
+        {% for tz in timezones %}
+        <option value="{{ tz }}" {% if tz == app_timezone %}selected{% endif %}>{{ timezone_label(tz) }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label class="checkbox-inline">
+      <input type="checkbox" name="apply_existing" value="true" />
+      Apply to existing schedules too
+    </label>
+
+    <div class="attachment-summary">
+      <p>
+        This timezone is used for new schedules, the recurring tab, and how dates are
+        shown in the UI.
+      </p>
+    </div>
+
+    <button type="submit">Save timezone</button>
+  </form>
+</section>
+{% endblock %}
