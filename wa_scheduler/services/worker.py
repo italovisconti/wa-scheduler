@@ -9,7 +9,11 @@ from sqlalchemy.orm import Session, joinedload
 
 from wa_scheduler.config import get_settings
 from wa_scheduler.models import OutboundJob, Schedule, ScheduledRun
-from wa_scheduler.services.scheduler import enqueue_unique_job, materialize_runs
+from wa_scheduler.services.scheduler import (
+    compute_next_run,
+    enqueue_unique_job,
+    materialize_runs,
+)
 from wa_scheduler.services.sync import sync_chats, sync_contacts
 from wa_scheduler.services.wacli import WacliClient, WacliCommandResult, WacliError
 from wa_scheduler.timeutil import utcnow
@@ -80,6 +84,12 @@ def _process_send_job(session: Session, job: OutboundJob, client: WacliClient) -
         schedule.last_run_at = run.run_at
         if schedule.schedule_type == "one_time":
             schedule.is_active = False
+        elif schedule.schedule_type == "interval":
+            schedule.next_run_at = compute_next_run(
+                schedule, reference_utc=run.run_at + timedelta(seconds=1)
+            )
+            if schedule.next_run_at is None:
+                schedule.is_active = False
 
     session.commit()
 
