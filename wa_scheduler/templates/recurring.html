@@ -52,11 +52,11 @@
       <div class="inline-grid">
         <label>
           <span>Start at</span>
-          <input type="datetime-local" name="one_time_at" value="{{ default_start_at }}" required />
+          <input type="text" name="one_time_at" value="{{ default_start_at }}" data-flatpickr="datetime" placeholder="YYYY-MM-DD HH:MM" required />
         </label>
         <label>
           <span>Repeat until</span>
-          <input type="datetime-local" name="repeat_until_at" value="{{ default_until_at }}" required />
+          <input type="text" name="repeat_until_at" value="{{ default_until_at }}" data-flatpickr="datetime" placeholder="YYYY-MM-DD HH:MM" required />
         </label>
       </div>
 

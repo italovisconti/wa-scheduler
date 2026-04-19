@@ -83,14 +83,14 @@
     <div class="schedule-type-field" data-schedule-type-field data-types="one_time" {% if schedule.schedule_type != 'one_time' %}hidden{% endif %}>
       <label>
         <span>One time at</span>
-        <input type="datetime-local" name="one_time_at" value="{% if schedule.one_time_at %}{{ to_local(schedule.one_time_at, app_timezone).strftime('%Y-%m-%dT%H:%M') }}{% endif %}" required {% if schedule.schedule_type != 'one_time' %}disabled{% endif %} />
+        <input type="text" name="one_time_at" value="{% if schedule.one_time_at %}{{ to_local(schedule.one_time_at, app_timezone).strftime('%Y-%m-%dT%H:%M') }}{% endif %}" data-flatpickr="datetime" placeholder="YYYY-MM-DD HH:MM" required {% if schedule.schedule_type != 'one_time' %}disabled{% endif %} />
       </label>
     </div>
 
     <div class="schedule-type-field" data-schedule-type-field data-types="daily,weekly,monthly" {% if schedule.schedule_type not in ['daily', 'weekly', 'monthly'] %}hidden{% endif %}>
       <label>
         <span>Time of day</span>
-        <input type="time" name="time_of_day" value="{{ schedule.time_of_day }}" {% if schedule.schedule_type not in ['daily', 'weekly', 'monthly'] %}disabled{% endif %} />
+        <input type="text" name="time_of_day" value="{{ schedule.time_of_day }}" data-flatpickr="time" placeholder="HH:MM" {% if schedule.schedule_type not in ['daily', 'weekly', 'monthly'] %}disabled{% endif %} />
       </label>
     </div>
 
@@ -119,7 +119,7 @@
       <div class="inline-grid">
         <label>
           <span>Start at</span>
-          <input type="datetime-local" name="one_time_at" value="{{ to_local(schedule.one_time_at, app_timezone).strftime('%Y-%m-%dT%H:%M') if schedule.one_time_at else '' }}" {% if schedule.schedule_type != 'interval' %}disabled{% endif %} />
+          <input type="text" name="one_time_at" value="{{ to_local(schedule.one_time_at, app_timezone).strftime('%Y-%m-%dT%H:%M') if schedule.one_time_at else '' }}" data-flatpickr="datetime" placeholder="YYYY-MM-DD HH:MM" {% if schedule.schedule_type != 'interval' %}disabled{% endif %} />
         </label>
         <label>
           <span>Repeat every</span>
@@ -135,7 +135,7 @@
 
       <label>
         <span>Repeat until</span>
-        <input type="datetime-local" name="repeat_until_at" value="{{ to_local(schedule.repeat_until_at, app_timezone).strftime('%Y-%m-%dT%H:%M') if schedule.repeat_until_at else '' }}" {% if schedule.schedule_type != 'interval' %}disabled{% endif %} />
+        <input type="text" name="repeat_until_at" value="{{ to_local(schedule.repeat_until_at, app_timezone).strftime('%Y-%m-%dT%H:%M') if schedule.repeat_until_at else '' }}" data-flatpickr="datetime" placeholder="YYYY-MM-DD HH:MM" {% if schedule.schedule_type != 'interval' %}disabled{% endif %} />
       </label>
     </div>
 

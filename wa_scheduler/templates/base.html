@@ -7,6 +7,7 @@
     <link rel="icon" href="{{ url_for('static', path='/logo.svg') }}" type="image/svg+xml" />
     <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
   </head>
   <body>
@@ -42,6 +43,7 @@
       {% block content %}{% endblock %}
     </main>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         // Initialize Select2 on all select elements
@@ -55,6 +57,32 @@
             dropdownParent: $(select).closest('form')
           });
         });
+
+        if (window.flatpickr) {
+          const flatpickrOptions = {
+            time: {
+              enableTime: true,
+              noCalendar: true,
+              dateFormat: 'H:i',
+              time_24hr: true,
+              minuteIncrement: 5,
+              allowInput: true,
+            },
+            datetime: {
+              enableTime: true,
+              dateFormat: 'Y-m-d\\TH:i',
+              time_24hr: true,
+              minuteIncrement: 5,
+              allowInput: true,
+            },
+          };
+
+          document.querySelectorAll('[data-flatpickr]').forEach(function(input) {
+            const options = flatpickrOptions[input.dataset.flatpickr];
+            if (!options) return;
+            window.flatpickr(input, options);
+          });
+        }
       });
     </script>
     <script defer src="{{ url_for('static', path='/app.js') }}"></script>
