@@ -14,9 +14,9 @@
 
     {% include "target_selector.html" %}
 
-      <label>
-        <span>Template</span>
-        <select name="template_id">
+    <label>
+      <span>Template</span>
+      <select name="template_id">
         <option value="0">No template</option>
         {% for template in templates_list %}
         <option value="{{ template.id }}" {% if schedule.template_id == template.id %}selected{% endif %}>{{ template.name }}</option>
@@ -68,7 +68,7 @@
       </label>
       <label>
         <span>Schedule type</span>
-        <select name="schedule_type">
+        <select name="schedule_type" data-schedule-type-select>
           <option value="one_time" {% if schedule.schedule_type == 'one_time' %}selected{% endif %}>One time</option>
           <option value="daily" {% if schedule.schedule_type == 'daily' %}selected{% endif %}>Daily</option>
           <option value="weekly" {% if schedule.schedule_type == 'weekly' %}selected{% endif %}>Weekly</option>
@@ -76,18 +76,56 @@
           <option value="interval" {% if schedule.schedule_type == 'interval' %}selected{% endif %}>Interval</option>
         </select>
       </label>
+    </div>
 
-      {% if schedule.schedule_type == 'interval' %}
+    <p class="schedule-type-help muted">Only the fields for the selected schedule type are shown.</p>
+
+    <div class="schedule-type-field" data-schedule-type-field data-types="one_time" {% if schedule.schedule_type != 'one_time' %}hidden{% endif %}>
+      <label>
+        <span>One time at</span>
+        <input type="datetime-local" name="one_time_at" value="{% if schedule.one_time_at %}{{ to_local(schedule.one_time_at, app_timezone).strftime('%Y-%m-%dT%H:%M') }}{% endif %}" required {% if schedule.schedule_type != 'one_time' %}disabled{% endif %} />
+      </label>
+    </div>
+
+    <div class="schedule-type-field" data-schedule-type-field data-types="daily,weekly,monthly" {% if schedule.schedule_type not in ['daily', 'weekly', 'monthly'] %}hidden{% endif %}>
+      <label>
+        <span>Time of day</span>
+        <input type="time" name="time_of_day" value="{{ schedule.time_of_day }}" {% if schedule.schedule_type not in ['daily', 'weekly', 'monthly'] %}disabled{% endif %} />
+      </label>
+    </div>
+
+    {% set selected_weekdays = schedule.weekdays.split(',') if schedule.weekdays else [] %}
+    <fieldset class="schedule-type-field" data-schedule-type-field data-types="weekly" {% if schedule.schedule_type != 'weekly' %}hidden disabled{% endif %}>
+      <legend>Weekdays</legend>
+      <div class="checkbox-row">
+        <label><input type="checkbox" name="weekdays" value="0" {% if '0' in selected_weekdays %}checked{% endif %} {% if schedule.schedule_type != 'weekly' %}disabled{% endif %} /> Mon</label>
+        <label><input type="checkbox" name="weekdays" value="1" {% if '1' in selected_weekdays %}checked{% endif %} {% if schedule.schedule_type != 'weekly' %}disabled{% endif %} /> Tue</label>
+        <label><input type="checkbox" name="weekdays" value="2" {% if '2' in selected_weekdays %}checked{% endif %} {% if schedule.schedule_type != 'weekly' %}disabled{% endif %} /> Wed</label>
+        <label><input type="checkbox" name="weekdays" value="3" {% if '3' in selected_weekdays %}checked{% endif %} {% if schedule.schedule_type != 'weekly' %}disabled{% endif %} /> Thu</label>
+        <label><input type="checkbox" name="weekdays" value="4" {% if '4' in selected_weekdays %}checked{% endif %} {% if schedule.schedule_type != 'weekly' %}disabled{% endif %} /> Fri</label>
+        <label><input type="checkbox" name="weekdays" value="5" {% if '5' in selected_weekdays %}checked{% endif %} {% if schedule.schedule_type != 'weekly' %}disabled{% endif %} /> Sat</label>
+        <label><input type="checkbox" name="weekdays" value="6" {% if '6' in selected_weekdays %}checked{% endif %} {% if schedule.schedule_type != 'weekly' %}disabled{% endif %} /> Sun</label>
+      </div>
+    </fieldset>
+
+    <div class="schedule-type-field" data-schedule-type-field data-types="monthly" {% if schedule.schedule_type != 'monthly' %}hidden{% endif %}>
+      <label>
+        <span>Day of month</span>
+        <input type="number" min="1" max="31" name="day_of_month" value="{{ schedule.day_of_month or 1 }}" {% if schedule.schedule_type != 'monthly' %}disabled{% endif %} />
+      </label>
+    </div>
+
+    <div class="schedule-type-field schedule-type-group" data-schedule-type-field data-types="interval" {% if schedule.schedule_type != 'interval' %}hidden{% endif %}>
       <div class="inline-grid">
         <label>
           <span>Start at</span>
-          <input type="datetime-local" name="one_time_at" value="{{ to_local(schedule.one_time_at, app_timezone).strftime('%Y-%m-%dT%H:%M') if schedule.one_time_at else '' }}" />
+          <input type="datetime-local" name="one_time_at" value="{{ to_local(schedule.one_time_at, app_timezone).strftime('%Y-%m-%dT%H:%M') if schedule.one_time_at else '' }}" {% if schedule.schedule_type != 'interval' %}disabled{% endif %} />
         </label>
         <label>
           <span>Repeat every</span>
           <div class="inline-grid recurring-interval" data-interval-group>
-            <input type="number" min="5" max="10080" name="interval_value" value="{{ schedule.interval_minutes or (schedule.interval_hours or 1) * 60 }}" data-interval-value />
-            <select name="interval_unit" data-interval-unit>
+            <input type="number" min="5" max="10080" name="interval_value" value="{{ schedule.interval_minutes or (schedule.interval_hours or 1) * 60 }}" data-interval-value {% if schedule.schedule_type != 'interval' %}disabled{% endif %} />
+            <select name="interval_unit" data-interval-unit {% if schedule.schedule_type != 'interval' %}disabled{% endif %}>
               <option value="minutes" {% if schedule.interval_minutes is not none and schedule.interval_minutes < 60 %}selected{% elif schedule.interval_minutes is none and not schedule.interval_hours %}selected{% endif %}>Minutes</option>
               <option value="hours" {% if schedule.interval_minutes and schedule.interval_minutes >= 60 and schedule.interval_minutes % 60 == 0 %}selected{% elif schedule.interval_hours %}selected{% endif %}>Hours</option>
             </select>
@@ -97,42 +135,9 @@
 
       <label>
         <span>Repeat until</span>
-        <input type="datetime-local" name="repeat_until_at" value="{{ to_local(schedule.repeat_until_at, app_timezone).strftime('%Y-%m-%dT%H:%M') if schedule.repeat_until_at else '' }}" />
-      </label>
-      {% endif %}
-    </div>
-
-    {% if schedule.schedule_type != 'interval' %}
-    <div class="inline-grid">
-      <label>
-        <span>One time at</span>
-        <input type="datetime-local" name="one_time_at" value="{% if schedule.one_time_at %}{{ to_local(schedule.one_time_at, app_timezone).strftime('%Y-%m-%dT%H:%M') }}{% endif %}" />
-      </label>
-      <label>
-        <span>Time of day</span>
-        <input type="time" name="time_of_day" value="{{ schedule.time_of_day }}" />
+        <input type="datetime-local" name="repeat_until_at" value="{{ to_local(schedule.repeat_until_at, app_timezone).strftime('%Y-%m-%dT%H:%M') if schedule.repeat_until_at else '' }}" {% if schedule.schedule_type != 'interval' %}disabled{% endif %} />
       </label>
     </div>
-
-    {% set selected_weekdays = schedule.weekdays.split(',') if schedule.weekdays else [] %}
-    <fieldset>
-      <legend>Weekdays</legend>
-      <div class="checkbox-row">
-        <label><input type="checkbox" name="weekdays" value="0" {% if '0' in selected_weekdays %}checked{% endif %} /> Mon</label>
-        <label><input type="checkbox" name="weekdays" value="1" {% if '1' in selected_weekdays %}checked{% endif %} /> Tue</label>
-        <label><input type="checkbox" name="weekdays" value="2" {% if '2' in selected_weekdays %}checked{% endif %} /> Wed</label>
-        <label><input type="checkbox" name="weekdays" value="3" {% if '3' in selected_weekdays %}checked{% endif %} /> Thu</label>
-        <label><input type="checkbox" name="weekdays" value="4" {% if '4' in selected_weekdays %}checked{% endif %} /> Fri</label>
-        <label><input type="checkbox" name="weekdays" value="5" {% if '5' in selected_weekdays %}checked{% endif %} /> Sat</label>
-        <label><input type="checkbox" name="weekdays" value="6" {% if '6' in selected_weekdays %}checked{% endif %} /> Sun</label>
-      </div>
-    </fieldset>
-
-    <label>
-      <span>Day of month</span>
-      <input type="number" min="1" max="31" name="day_of_month" value="{{ schedule.day_of_month or 1 }}" />
-    </label>
-    {% endif %}
 
     <div class="actions-row">
       <button type="submit">Save changes</button>

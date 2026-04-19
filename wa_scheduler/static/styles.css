@@ -309,6 +309,19 @@ fieldset {
   resize: vertical;
 }
 
+.schedule-type-help {
+  margin: -0.3rem 0 0;
+}
+
+.schedule-type-field[hidden] {
+  display: none !important;
+}
+
+.schedule-type-group {
+  display: grid;
+  gap: 1rem;
+}
+
 .inline-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

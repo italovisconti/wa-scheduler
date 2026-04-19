@@ -11,9 +11,9 @@
 
       {% include "target_selector.html" %}
 
-        <label>
-          <span>Template</span>
-          <select name="template_id">
+      <label>
+        <span>Template</span>
+        <select name="template_id">
           <option value="0">No template</option>
           {% for template in templates_list %}
           <option value="{{ template.id }}">{{ template.name }}</option>
@@ -58,7 +58,7 @@
         </label>
         <label>
           <span>Schedule type</span>
-          <select name="schedule_type">
+          <select name="schedule_type" data-schedule-type-select>
             <option value="one_time">One time</option>
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
@@ -67,34 +67,41 @@
         </label>
       </div>
 
-      <div class="inline-grid">
+      <p class="schedule-type-help muted">Only the fields for the selected schedule type are shown.</p>
+
+      <div class="schedule-type-field" data-schedule-type-field data-types="one_time">
         <label>
           <span>One time at</span>
-          <input type="datetime-local" name="one_time_at" />
-        </label>
-        <label>
-          <span>Time of day</span>
-          <input type="time" name="time_of_day" />
+          <input type="datetime-local" name="one_time_at" required />
         </label>
       </div>
 
-      <fieldset>
+      <div class="schedule-type-field" data-schedule-type-field data-types="daily,weekly,monthly" hidden>
+        <label>
+          <span>Time of day</span>
+          <input type="time" name="time_of_day" disabled />
+        </label>
+      </div>
+
+      <fieldset class="schedule-type-field" data-schedule-type-field data-types="weekly" hidden disabled>
         <legend>Weekdays</legend>
         <div class="checkbox-row">
-          <label><input type="checkbox" name="weekdays" value="0" /> Mon</label>
-          <label><input type="checkbox" name="weekdays" value="1" /> Tue</label>
-          <label><input type="checkbox" name="weekdays" value="2" /> Wed</label>
-          <label><input type="checkbox" name="weekdays" value="3" /> Thu</label>
-          <label><input type="checkbox" name="weekdays" value="4" /> Fri</label>
-          <label><input type="checkbox" name="weekdays" value="5" /> Sat</label>
-          <label><input type="checkbox" name="weekdays" value="6" /> Sun</label>
+          <label><input type="checkbox" name="weekdays" value="0" disabled /> Mon</label>
+          <label><input type="checkbox" name="weekdays" value="1" disabled /> Tue</label>
+          <label><input type="checkbox" name="weekdays" value="2" disabled /> Wed</label>
+          <label><input type="checkbox" name="weekdays" value="3" disabled /> Thu</label>
+          <label><input type="checkbox" name="weekdays" value="4" disabled /> Fri</label>
+          <label><input type="checkbox" name="weekdays" value="5" disabled /> Sat</label>
+          <label><input type="checkbox" name="weekdays" value="6" disabled /> Sun</label>
         </div>
       </fieldset>
 
-      <label>
-        <span>Day of month</span>
-        <input type="number" min="1" max="31" name="day_of_month" value="1" />
-      </label>
+      <div class="schedule-type-field" data-schedule-type-field data-types="monthly" hidden>
+        <label>
+          <span>Day of month</span>
+          <input type="number" min="1" max="31" name="day_of_month" value="1" disabled />
+        </label>
+      </div>
 
       <button type="submit">Save schedule</button>
     </form>

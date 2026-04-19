@@ -1,4 +1,38 @@
 (() => {
+  for (const form of document.querySelectorAll("form")) {
+    const typeSelect = form.querySelector("[data-schedule-type-select], select[name='schedule_type']");
+    const typeFields = Array.from(form.querySelectorAll("[data-schedule-type-field]"));
+
+    if (!typeSelect || typeFields.length === 0) {
+      continue;
+    }
+
+    const syncScheduleType = () => {
+      const activeType = typeSelect.value;
+
+      for (const field of typeFields) {
+        const allowedTypes = (field.dataset.types || "")
+          .split(",")
+          .map((type) => type.trim())
+          .filter(Boolean);
+        const isActive = allowedTypes.includes(activeType);
+
+        field.hidden = !isActive;
+        field.setAttribute("aria-hidden", String(!isActive));
+        if (field.tagName === "FIELDSET") {
+          field.disabled = !isActive;
+        }
+
+        for (const control of field.querySelectorAll("input, select, textarea, button")) {
+          control.disabled = !isActive;
+        }
+      }
+    };
+
+    typeSelect.addEventListener("change", syncScheduleType);
+    syncScheduleType();
+  }
+
   for (const root of document.querySelectorAll("[data-target-selector]")) {
     const filter = root.querySelector("[data-target-filter]");
     const select = root.querySelector("[data-target-select]");
