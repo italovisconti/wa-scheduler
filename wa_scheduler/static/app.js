@@ -30,6 +30,9 @@
     };
 
     typeSelect.addEventListener("change", syncScheduleType);
+    if (window.jQuery) {
+      window.jQuery(typeSelect).on("select2:select select2:clear", syncScheduleType);
+    }
     syncScheduleType();
   }
 
